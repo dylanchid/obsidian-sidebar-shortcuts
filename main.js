@@ -78,6 +78,7 @@ class SidebarShortcutsPlugin extends Plugin {
   }
 
   onunload() {
+    window.clearTimeout(this.renderTimer);
     document.querySelectorAll(".sidebar-shortcuts").forEach((el) => el.remove());
   }
 
@@ -209,20 +210,33 @@ class SidebarShortcutsPlugin extends Plugin {
     const existing = this.findLeaf((leaf) => viewTypes.includes(leaf.view?.getViewType?.()));
     if (existing) return this.activateLeaf(existing);
 
+    const commandId = this.findCommand(commandIds, titlePattern);
+    if (!commandId) {
+      new Notice("That shortcut is not available. Check that its Obsidian plugin is enabled.");
+      return;
+    }
+
     if (prepareTab) {
       const leaf = this.app.workspace.getLeaf("tab");
       await leaf.setViewState({ type: "empty", active: true });
       this.app.workspace.setActiveLeaf(leaf, { focus: true });
     }
 
-    return this.runCommand(commandIds, titlePattern);
+    return this.runCommandById(commandId);
   }
 
   runCommand(commandIds, titlePattern) {
-    const commands = this.app.commands?.commands ?? {};
-    const id = commandIds.find((candidate) => commands[candidate])
-      ?? Object.values(commands).find((command) => titlePattern.test(command.name ?? command.title ?? ""))?.id;
+    const id = this.findCommand(commandIds, titlePattern);
+    return this.runCommandById(id);
+  }
 
+  findCommand(commandIds, titlePattern) {
+    const commands = this.app.commands?.commands ?? {};
+    return commandIds.find((candidate) => commands[candidate])
+      ?? Object.values(commands).find((command) => titlePattern.test(command.name ?? command.title ?? ""))?.id;
+  }
+
+  runCommandById(id) {
     if (!id || !this.app.commands.executeCommandById(id)) {
       new Notice("That shortcut is not available. Check that its Obsidian plugin is enabled.");
     }
