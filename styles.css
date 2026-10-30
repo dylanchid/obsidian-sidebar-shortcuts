@@ -34,7 +34,7 @@
 .sidebar-shortcuts__item {
   appearance: none;
   display: grid;
-  grid-template-columns: 18px minmax(0, 1fr) auto;
+  grid-template-columns: 18px minmax(0, 1fr);
   align-items: center;
   width: 100%;
   min-height: 32px;
@@ -83,21 +83,4 @@
   padding-inline-start: 7px;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.sidebar-shortcuts__key {
-  margin-inline-start: 8px;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  box-shadow: none;
-  color: var(--text-faint);
-  font-family: var(--font-interface);
-  font-size: var(--font-ui-smaller);
-  line-height: 1;
-}
-
-.sidebar-shortcuts__item:hover .sidebar-shortcuts__key,
-.sidebar-shortcuts__item.is-active .sidebar-shortcuts__key {
-  color: var(--text-muted);
 }

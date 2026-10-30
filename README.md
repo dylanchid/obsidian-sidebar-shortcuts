@@ -1,12 +1,10 @@
 # Sidebar Shortcuts
 
-Quick destinations above the file explorer with Command-number shortcuts.
+Open favorite notes and views from a shortcut list above the file explorer.
 
 ## Use
 
-Buttons above the file explorer open Home, Canvas, Draw, Base, and Spaced repetition destinations. The corresponding commands are available in the command palette. This local version expects a `Home/Home.md` note and the relevant view plugins; missing destinations are reported in Obsidian.
-
-The destinations are currently fixed in `main.js`. Configuration and non-Mac keyboard labels are needed before a general Community directory release.
+Buttons above the file explorer can open a chosen Home note, Canvas, Draw, Base, and Spaced repetition destinations. Set the Home note path and choose which buttons appear under **Settings → Sidebar Shortcuts**. The corresponding commands are available in the command palette and can be assigned hotkeys in Obsidian's Hotkeys settings. Draw requires Excalidraw; Spaced repetition requires its plugin. Missing destinations are reported in Obsidian.
 
 ## Install manually
 

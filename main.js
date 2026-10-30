@@ -1,17 +1,61 @@
 "use strict";
 
-const { Notice, Plugin, setIcon } = require("obsidian");
+const { Notice, Plugin, PluginSettingTab, Setting, setIcon } = require("obsidian");
 
 const SHORTCUTS = [
-  { id: "home", label: "Home", key: "1", icon: "home" },
-  { id: "canvas", label: "Canvas", key: "2", icon: "layout-dashboard" },
-  { id: "draw", label: "Draw", key: "3", icon: "pencil-ruler" },
-  { id: "base", label: "Base", key: "4", icon: "database" },
-  { id: "spaced-repetition", label: "Spaced repetition", key: "5", icon: "brain" },
+  { id: "home", label: "Home", icon: "home" },
+  { id: "canvas", label: "Canvas", icon: "layout-dashboard" },
+  { id: "draw", label: "Draw", icon: "pencil-ruler" },
+  { id: "base", label: "Base", icon: "database" },
+  { id: "spaced-repetition", label: "Spaced repetition", icon: "brain" },
 ];
+
+const DEFAULT_SETTINGS = {
+  homePath: "",
+  visible: { home: true, canvas: true, draw: false, base: true, "spaced-repetition": false },
+};
+
+class SidebarShortcutsSettingTab extends PluginSettingTab {
+  constructor(app, plugin) {
+    super(app, plugin);
+    this.plugin = plugin;
+  }
+
+  display() {
+    const { containerEl } = this;
+    containerEl.empty();
+    new Setting(containerEl)
+      .setName("Home note path")
+      .setDesc("Vault-relative path to the note opened by Home. Leave blank to hide Home.")
+      .addText((text) => text.setPlaceholder("Home.md").setValue(this.plugin.settings.homePath)
+        .onChange(async (value) => {
+          this.plugin.settings.homePath = value.trim();
+          await this.plugin.saveSettings();
+        }));
+    new Setting(containerEl).setName("Destinations").setHeading();
+    for (const shortcut of SHORTCUTS) {
+      if (shortcut.id === "home") continue;
+      new Setting(containerEl)
+        .setName(shortcut.label)
+        .setDesc("Show this destination above the file explorer.")
+        .addToggle((toggle) => toggle.setValue(this.plugin.settings.visible[shortcut.id])
+          .onChange(async (value) => {
+            this.plugin.settings.visible[shortcut.id] = value;
+            await this.plugin.saveSettings();
+          }));
+    }
+  }
+}
 
 class SidebarShortcutsPlugin extends Plugin {
   async onload() {
+    const saved = await this.loadData() ?? {};
+    this.settings = {
+      ...DEFAULT_SETTINGS,
+      ...saved,
+      visible: { ...DEFAULT_SETTINGS.visible, ...(saved.visible ?? {}) },
+    };
+    this.addSettingTab(new SidebarShortcutsSettingTab(this.app, this));
     for (const shortcut of SHORTCUTS) {
       this.addCommand({
         id: `open-${shortcut.id}`,
@@ -35,6 +79,17 @@ class SidebarShortcutsPlugin extends Plugin {
 
   onunload() {
     document.querySelectorAll(".sidebar-shortcuts").forEach((el) => el.remove());
+  }
+
+  async saveSettings() {
+    await this.saveData(this.settings);
+    document.querySelectorAll(".sidebar-shortcuts").forEach((el) => el.remove());
+    this.render();
+  }
+
+  visibleShortcuts() {
+    return SHORTCUTS.filter((shortcut) =>
+      this.settings.visible[shortcut.id] && (shortcut.id !== "home" || this.settings.homePath));
   }
 
   scheduleRender() {
@@ -63,12 +118,12 @@ class SidebarShortcutsPlugin extends Plugin {
       list.className = "sidebar-shortcuts__list";
       section.appendChild(list);
 
-      for (const shortcut of SHORTCUTS) {
+      for (const shortcut of this.visibleShortcuts()) {
         const button = document.createElement("button");
         button.className = "sidebar-shortcuts__item";
         button.type = "button";
         button.dataset.shortcut = shortcut.id;
-        button.setAttribute("aria-label", `${shortcut.label}, Command ${shortcut.key}`);
+        button.setAttribute("aria-label", `Open ${shortcut.label}`);
 
         const icon = document.createElement("span");
         icon.className = "sidebar-shortcuts__icon";
@@ -78,11 +133,7 @@ class SidebarShortcutsPlugin extends Plugin {
         label.className = "sidebar-shortcuts__label";
         label.textContent = shortcut.label;
 
-        const key = document.createElement("kbd");
-        key.className = "sidebar-shortcuts__key";
-        key.textContent = `⌘${shortcut.key}`;
-
-        button.append(icon, label, key);
+        button.append(icon, label);
         button.addEventListener("click", () => this.openShortcut(shortcut.id));
         list.appendChild(button);
       }
@@ -105,7 +156,7 @@ class SidebarShortcutsPlugin extends Plugin {
     const type = leaf?.view?.getViewType?.();
     const file = leaf?.view?.file?.path ?? leaf?.getViewState?.().state?.file;
 
-    if (file === "Home/Home.md") return "home";
+    if (this.settings.homePath && file === this.settings.homePath) return "home";
     if (type === "canvas") return "canvas";
     if (type === "excalidraw") return "draw";
     if (type === "bases" || type === "base") return "base";
@@ -113,7 +164,10 @@ class SidebarShortcutsPlugin extends Plugin {
   }
 
   async openShortcut(id) {
-    if (id === "home") return this.openFile("Home/Home.md");
+    if (id === "home") {
+      if (!this.settings.homePath) return new Notice("Set a Home note path in Sidebar Shortcuts settings.");
+      return this.openFile(this.settings.homePath);
+    }
     if (id === "canvas") return this.openViewOrCommand(["canvas"], ["canvas:new-file"], /create new canvas/i);
     if (id === "draw") {
       return this.openViewOrCommand(
