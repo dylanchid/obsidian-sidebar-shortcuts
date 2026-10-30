@@ -1,0 +1,103 @@
+.workspace-leaf-content[data-type="file-explorer"] .view-content {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.workspace-leaf-content[data-type="file-explorer"] .nav-files-container {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.sidebar-shortcuts {
+  flex: 0 0 auto;
+  margin: 2px 10px 8px;
+  padding: 8px 6px 9px;
+  border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.sidebar-shortcuts__heading {
+  margin: 0 8px 5px;
+  color: var(--text-faint);
+  font-size: var(--font-ui-smaller);
+  font-weight: var(--font-semibold);
+  letter-spacing: 0.08em;
+  line-height: 1.6;
+  text-transform: uppercase;
+}
+
+.sidebar-shortcuts__list {
+  display: grid;
+  gap: 1px;
+}
+
+.sidebar-shortcuts__item {
+  appearance: none;
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr) auto;
+  align-items: center;
+  width: 100%;
+  min-height: 32px;
+  margin: 0;
+  padding: 5px 8px;
+  border: 0;
+  border-radius: var(--radius-s);
+  background: transparent;
+  box-shadow: none;
+  color: var(--nav-item-color);
+  font-family: var(--font-interface);
+  font-size: var(--nav-item-size);
+  font-weight: var(--nav-item-weight);
+  text-align: left;
+  cursor: var(--cursor);
+}
+
+.sidebar-shortcuts__item:hover {
+  background: var(--nav-item-background-hover);
+  color: var(--nav-item-color-hover);
+}
+
+.sidebar-shortcuts__item.is-active {
+  background: var(--nav-item-background-active);
+  color: var(--nav-item-color-active);
+  font-weight: var(--nav-item-weight-active);
+}
+
+.sidebar-shortcuts__icon {
+  display: inline-flex;
+  width: 16px;
+  height: 16px;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+}
+
+.sidebar-shortcuts__icon svg {
+  width: 15px;
+  height: 15px;
+  stroke-width: 1.8;
+}
+
+.sidebar-shortcuts__label {
+  overflow: hidden;
+  padding-inline-start: 7px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sidebar-shortcuts__key {
+  margin-inline-start: 8px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--text-faint);
+  font-family: var(--font-interface);
+  font-size: var(--font-ui-smaller);
+  line-height: 1;
+}
+
+.sidebar-shortcuts__item:hover .sidebar-shortcuts__key,
+.sidebar-shortcuts__item.is-active .sidebar-shortcuts__key {
+  color: var(--text-muted);
+}

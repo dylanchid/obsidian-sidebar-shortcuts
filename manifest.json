@@ -1,0 +1,9 @@
+{
+  "id": "sidebar-shortcuts",
+  "name": "Sidebar Shortcuts",
+  "version": "1.0.0",
+  "minAppVersion": "1.5.0",
+  "description": "Quick destinations above the file explorer with Command-number shortcuts.",
+  "author": "Local",
+  "isDesktopOnly": false
+}
